@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>庭院异变 v0.8</title>
+  <meta name="theme-color" content="#101710" />
+</head>
+<body>
+  <div id="mainMenu" class="main-menu">
+    <div class="main-menu-panel">
+      <p class="eyebrow">GARDEN MUTATION</p>
+      <h1>庭院异变 <span>v0.8</span></h1>
+      <p>融合塔防 + Roguelite 突变 + 长期培育</p>
+      <div id="menuProfile" class="menu-profile"></div>
+      <div class="menu-buttons">
+        <button id="continueBtn" class="primary big">继续战役</button>
+        <button id="menuEndlessBtn" class="big">进入无尽</button>
+        <button id="menuTutorialBtn" class="big">新手培育教程</button>
+        <button id="menuPlanBtn" class="big">战前配置</button>
+        <button id="installBtn" class="big hidden">安装离线版</button>
+      </div>
+      <p class="muted">本作全部代码、几何图形与合成音效均为本项目原创实现，不包含《植物大战僵尸》原版素材。</p>
+    </div>
+  </div>
+
+  <main class="shell">
+    <section class="topbar">
+      <div>
+        <h1>庭院异变 <span>v0.8</span></h1>
+        <p>融合塔防 + Roguelite 突变 + 战役地图 + 遗物构筑</p>
+      </div>
+      <div class="actions">
+        <button id="returnMenuBtn">主菜单</button>
+        <button id="pauseBtn">暂停</button>
+        <button id="restartBtn">重开本局</button>
+      </div>
+    </section>
+
+    <nav class="hub-tabs" aria-label="战前配置">
+      <button class="hub-tab active" data-tab="mapPanel">战场地图</button>
+      <button class="hub-tab" data-tab="deckPanelCard">卡组</button>
+      <button class="hub-tab" data-tab="collectionPanel">图鉴与成就</button>
+      <button class="hub-tab" data-tab="savePanel">存档</button>
+    </nav>
+
+    <section class="hub-panel active" id="mapPanel">
+      <div class="meta-grid">
+        <div class="meta-card campaign-card">
+          <div class="meta-title-row"><h2>战役节点</h2><span id="campaignProgress" class="muted"></span></div>
+          <div id="levelNodes" class="level-nodes"></div>
+          <label>区域
+            <select id="levelSelect"></select>
+          </label>
+          <label>模式
+            <select id="modeSelect">
+              <option value="campaign">战役</option>
+              <option value="endless">无尽</option>
+              <option value="tutorial">教程</option>
+            </select>
+          </label>
+          <label>难度
+            <select id="difficultySelect">
+              <option value="story">培育模式</option>
+              <option value="standard" selected>标准</option>
+              <option value="hard">高压</option>
+              <option value="nightmare">畸变</option>
+            </select>
+          </label>
+          <p id="levelDescription" class="muted"></p>
+          <p id="unlockText" class="progress-text"></p>
+          <button id="startBtn" class="primary">开始所选战场</button>
+        </div>
+        <div class="meta-card tech-card">
+          <div class="meta-title-row">
+            <h2>永久培育</h2>
+            <span id="profileText" class="muted"></span>
+          </div>
+          <div id="techPanel" class="tech-panel"></div>
+        </div>
+        <div class="meta-card relic-card">
+          <div class="meta-title-row"><h2>遗物槽</h2><span id="relicCountText" class="muted"></span></div>
+          <p class="muted">每局可携带最多 2 件已发现遗物。遗物通过战役胜利、Boss 与成就解锁。</p>
+          <div id="relicPanel" class="relic-panel"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="hub-panel" id="deckPanelCard">
+      <div class="meta-card wide-card">
+        <div class="meta-title-row"><h2>战斗卡组</h2><span id="deckCountText" class="muted"></span></div>
+        <p class="muted">从 8 张基础卡中选择 6 张。融合配方仍可使用当前卡组中的材料；卡组保存到长期存档。</p>
+        <div id="deckPanel" class="deck-panel"></div>
+      </div>
+    </section>
+
+    <section class="hub-panel" id="collectionPanel">
+      <div class="collection-grid">
+        <div class="meta-card"><div class="meta-title-row"><h2>植物图鉴</h2><span id="plantDexText" class="muted"></span></div><div id="plantDex" class="dex-list"></div></div>
+        <div class="meta-card"><div class="meta-title-row"><h2>入侵者图鉴</h2><span id="enemyDexText" class="muted"></span></div><div id="enemyDex" class="dex-list"></div></div>
+        <div class="meta-card"><div class="meta-title-row"><h2>成就</h2><span id="achievementText" class="muted"></span></div><div id="achievementPanel" class="achievement-panel"></div></div>
+      </div>
+    </section>
+
+    <section class="hub-panel" id="savePanel">
+      <div class="meta-grid">
+        <div class="meta-card settings-card">
+          <h2>设置</h2>
+          <label class="toggle-row"><input id="sfxToggle" type="checkbox" /> 合成音效</label>
+          <label class="toggle-row"><input id="shakeToggle" type="checkbox" /> 屏幕震动</label>
+          <label class="toggle-row"><input id="damageToggle" type="checkbox" /> 伤害数字</label>
+          <label class="toggle-row"><input id="autoCollectToggle" type="checkbox" /> 自动收集能量</label>
+          <label class="toggle-row"><input id="ambientToggle" type="checkbox" /> 环境声</label>
+          <label class="toggle-row"><input id="reducedMotionToggle" type="checkbox" /> 低动态模式</label>
+          <label class="toggle-row"><input id="tutorialHintsToggle" type="checkbox" /> 教程提示</label>
+          <label class="range-row">主音量 <input id="volumeRange" type="range" min="0" max="1" step="0.05" value="0.7" /><span id="volumeValue">70%</span></label>
+          <p class="muted">音效和环境声由 Web Audio 实时合成，不包含外部音频素材。低动态模式会关闭摇摆、脉冲缩放和大部分粒子。</p>
+        </div>
+        <div class="meta-card save-card">
+          <div class="meta-title-row"><h2>存档槽</h2><span id="slotStatus" class="muted"></span></div>
+          <div class="slot-row"><select id="saveSlotSelect"><option value="1">槽位 1</option><option value="2">槽位 2</option><option value="3">槽位 3</option></select><button id="switchSlotBtn">切换槽位</button></div>
+          <h2>存档迁移</h2>
+          <p class="muted">导出内容只包含游戏进度、科技、卡组、遗物、图鉴和设置，不包含任何设备信息。</p>
+          <textarea id="saveText" rows="7" spellcheck="false" placeholder="点击导出生成存档码，或在这里粘贴存档码后导入。"></textarea>
+          <div class="actions"><button id="exportSaveBtn">导出存档</button><button id="importSaveBtn">导入存档</button><button id="copySaveBtn">复制</button></div>
+          <p id="saveStatus" class="progress-text"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="hud">
+      <div>能量 <strong id="energyValue">150</strong></div>
+      <div>波次 <strong id="waveValue">1</strong>/<span id="waveMax">12</span></div>
+      <div>击退 <strong id="killValue">0</strong></div>
+      <div>片段 <strong id="shardValue">0</strong></div>
+      <div>事件 <strong id="eventValue">无</strong></div>
+      <div>遗物 <strong id="runRelicValue">0</strong>/2</div>
+      <div id="tutorialHud" class="tutorial-hud hidden">指导 <strong id="tutorialValue">-</strong></div>
+      <div class="status" id="statusText">尚未开局</div>
+    </section>
+
+    <section class="game-wrap">
+      <canvas id="game" width="1080" height="720" aria-label="庭院异变游戏画布"></canvas>
+      <div id="tutorialCallout" class="tutorial-callout hidden"></div>
+      <div id="overlay" class="overlay hidden">
+        <div class="panel">
+          <h2 id="overlayTitle"></h2>
+          <p id="overlayText"></p>
+          <div id="upgradeChoices" class="upgrade-choices hidden"></div>
+          <button id="overlayRestartBtn">重新开始</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="mobileDeck" class="mobile-deck" aria-label="移动端卡组"></section>
+
+    <section class="help">
+      <p>点击卡牌后点击格子种植；把兼容卡牌种到已有单位上融合。键盘 1-6 选择当前卡组，空格暂停。</p>
+      <p class="recipes">二阶融合示例：日核荚+双生=日冕矩阵；极寒炮+毒藤=永冻毒核；四联荚+棱镜=折射阵列；再生堡+聚能=恒生堡。</p>
+      <p class="muted">金色边框为沃土；裂地不可种植；紫色毒化格持续伤害植物；蓝色导电格强化雷击。无尽模式每 10 波进入 Boss 周期。教程模式为 3 波引导流程；难度会改变敌方生命、速度、刷怪节奏和片段收益。</p>
+    </section>
+  </main>
+
+<script>
+(async()=>{
+async function txt(p){const r=await fetch(p,{cache:'no-store'});if(!r.ok)throw new Error('加载失败 '+p);return r.text()}
+async function ungzip(b64){const bin=atob(b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);const ds=new DecompressionStream('gzip');return await new Response(new Blob([u]).stream().pipeThrough(ds)).text()}
+try{
+ const style=document.createElement('style');style.textContent=await ungzip((await Promise.all(['s0.txt','s1.txt'].map(txt))).join(''));document.head.appendChild(style);
+ (0,eval)(await ungzip((await Promise.all(['c0.txt','c1.txt'].map(txt))).join('')));
+ (0,eval)(await ungzip((await Promise.all(['g0.txt','g1.txt','g2.txt','g3.txt','g4.txt'].map(txt))).join('')));
+}catch(e){document.body.innerHTML='<main style="padding:24px;font-family:sans-serif"><h1>庭院异变</h1><p>加载失败，请刷新或使用新版 Chrome/Edge/Firefox/Safari。</p><pre>'+String(e)+'</pre></main>';console.error(e)}
+})();
+</script>
+</body>
+</html>
