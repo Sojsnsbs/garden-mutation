@@ -11,16 +11,16 @@
     <div class="main-menu-panel">
       <p class="eyebrow">GARDEN GUARD</p>
       <h1>花园守卫 <span>v0.9</span></h1>
-      <p>种植物，挡怪潮，合成更强植物。</p>
+      <p>种植物，挡怪物，合成更强植物</p>
       <div id="menuProfile" class="menu-profile"></div>
       <div class="menu-buttons">
-        <button id="continueBtn" class="primary big">继续战役</button>
+        <button id="continueBtn" class="primary big">开始游戏</button>
         <button id="menuEndlessBtn" class="big">无尽模式</button>
         <button id="menuTutorialBtn" class="big">新手教程</button>
-        <button id="menuPlanBtn" class="big">选关与卡组</button>
+        <button id="menuPlanBtn" class="big">卡组与设置</button>
         <button id="installBtn" class="big hidden">安装离线版</button>
       </div>
-      <p class="muted">原创网页塔防。手机直接开玩。</p>
+      <p class="muted">原创植物塔防试玩版。</p>
     </div>
   </div>
 
@@ -28,26 +28,26 @@
     <section class="topbar">
       <div>
         <h1>花园守卫 <span>v0.9</span></h1>
-        <p>快节奏五路塔防</p>
+        <p>快节奏植物塔防</p>
       </div>
       <div class="actions">
-        <button id="returnMenuBtn">主菜单</button>
+        <button id="returnMenuBtn">退出</button>
         <button id="pauseBtn">暂停</button>
-        <button id="restartBtn">重开本局</button>
+        <button id="restartBtn">重开</button>
       </div>
     </section>
 
-    <nav class="hub-tabs" aria-label="战前配置">
-      <button class="hub-tab active" data-tab="mapPanel">战场地图</button>
+    <nav class="hub-tabs" aria-label="卡组与设置">
+      <button class="hub-tab active" data-tab="mapPanel">选关</button>
       <button class="hub-tab" data-tab="deckPanelCard">卡组</button>
-      <button class="hub-tab" data-tab="collectionPanel">图鉴与成就</button>
-      <button class="hub-tab" data-tab="savePanel">存档</button>
+      <button class="hub-tab" data-tab="collectionPanel">收集</button>
+      <button class="hub-tab" data-tab="savePanel">设置</button>
     </nav>
 
     <section class="hub-panel active" id="mapPanel">
       <div class="meta-grid">
         <div class="meta-card campaign-card">
-          <div class="meta-title-row"><h2>关卡</h2><span id="campaignProgress" class="muted"></span></div>
+          <div class="meta-title-row"><h2>选择关卡</h2><span id="campaignProgress" class="muted"></span></div>
           <div id="levelNodes" class="level-nodes"></div>
           <label>区域
             <select id="levelSelect"></select>
@@ -73,14 +73,14 @@
         </div>
         <div class="meta-card tech-card">
           <div class="meta-title-row">
-            <h2>永久升级</h2>
+            <h2>升级</h2>
             <span id="profileText" class="muted"></span>
           </div>
           <div id="techPanel" class="tech-panel"></div>
         </div>
         <div class="meta-card relic-card">
-          <div class="meta-title-row"><h2>被动能力</h2><span id="relicCountText" class="muted"></span></div>
-          <p class="muted">每局最多带 2 个被动能力。</p>
+          <div class="meta-title-row"><h2>随身道具</h2><span id="relicCountText" class="muted"></span></div>
+          <p class="muted">最多带 2 件。</p>
           <div id="relicPanel" class="relic-panel"></div>
         </div>
       </div>
@@ -88,16 +88,16 @@
 
     <section class="hub-panel" id="deckPanelCard">
       <div class="meta-card wide-card">
-        <div class="meta-title-row"><h2>出战植物</h2><span id="deckCountText" class="muted"></span></div>
-        <p class="muted">8 选 6。把兼容植物叠到已有植物上即可合成。</p>
+        <div class="meta-title-row"><h2>选择植物</h2><span id="deckCountText" class="muted"></span></div>
+        <p class="muted">从 8 张基础卡中选择 6 张。融合配方仍可使用当前卡组中的材料；卡组保存到长期设置。</p>
         <div id="deckPanel" class="deck-panel"></div>
       </div>
     </section>
 
     <section class="hub-panel" id="collectionPanel">
       <div class="collection-grid">
-        <div class="meta-card"><div class="meta-title-row"><h2>植物图鉴</h2><span id="plantDexText" class="muted"></span></div><div id="plantDex" class="dex-list"></div></div>
-        <div class="meta-card"><div class="meta-title-row"><h2>入侵者图鉴</h2><span id="enemyDexText" class="muted"></span></div><div id="enemyDex" class="dex-list"></div></div>
+        <div class="meta-card"><div class="meta-title-row"><h2>植物</h2><span id="plantDexText" class="muted"></span></div><div id="plantDex" class="dex-list"></div></div>
+        <div class="meta-card"><div class="meta-title-row"><h2>怪物</h2><span id="enemyDexText" class="muted"></span></div><div id="enemyDex" class="dex-list"></div></div>
         <div class="meta-card"><div class="meta-title-row"><h2>成就</h2><span id="achievementText" class="muted"></span></div><div id="achievementPanel" class="achievement-panel"></div></div>
       </div>
     </section>
@@ -117,12 +117,12 @@
           <p class="muted">音效和环境声由 Web Audio 实时合成，不包含外部音频素材。低动态模式会关闭摇摆、脉冲缩放和大部分粒子。</p>
         </div>
         <div class="meta-card save-card">
-          <div class="meta-title-row"><h2>存档槽</h2><span id="slotStatus" class="muted"></span></div>
+          <div class="meta-title-row"><h2>设置槽</h2><span id="slotStatus" class="muted"></span></div>
           <div class="slot-row"><select id="saveSlotSelect"><option value="1">槽位 1</option><option value="2">槽位 2</option><option value="3">槽位 3</option></select><button id="switchSlotBtn">切换槽位</button></div>
-          <h2>存档迁移</h2>
-          <p class="muted">导出内容只包含游戏进度、科技、卡组、遗物、图鉴和设置，不包含任何设备信息。</p>
-          <textarea id="saveText" rows="7" spellcheck="false" placeholder="点击导出生成存档码，或在这里粘贴存档码后导入。"></textarea>
-          <div class="actions"><button id="exportSaveBtn">导出存档</button><button id="importSaveBtn">导入存档</button><button id="copySaveBtn">复制</button></div>
+          <h2>设置迁移</h2>
+          <p class="muted">可导出或导入进度码。</p>
+          <textarea id="saveText" rows="7" spellcheck="false" placeholder="点击导出生成设置码，或在这里粘贴设置码后导入。"></textarea>
+          <div class="actions"><button id="exportSaveBtn">导出设置</button><button id="importSaveBtn">导入设置</button><button id="copySaveBtn">复制</button></div>
           <p id="saveStatus" class="progress-text"></p>
         </div>
       </div>
@@ -133,9 +133,8 @@
       <div>波次 <strong id="waveValue">1</strong>/<span id="waveMax">12</span></div>
       <div>击退 <strong id="killValue">0</strong></div>
       <div>片段 <strong id="shardValue">0</strong></div>
-      <div class="hud-secondary">事件 <strong id="eventValue">无</strong></div>
-      <div class="hud-secondary">能力 <strong id="runRelicValue">0</strong>/2</div>
-      <button id="overdriveBtn" class="overdrive-btn" type="button"><span>爆发</span><strong id="overdriveValue">0%</strong></button>
+      <div>事件 <strong id="eventValue">无</strong></div>
+      <div>遗物 <strong id="runRelicValue">0</strong>/2</div>
       <div id="tutorialHud" class="tutorial-hud hidden">指导 <strong id="tutorialValue">-</strong></div>
       <div class="status" id="statusText">尚未开局</div>
     </section>
@@ -156,7 +155,9 @@
     <section id="mobileDeck" class="mobile-deck" aria-label="移动端卡组"></section>
 
     <section class="help">
-      <p>点植物，再点草地。兼容植物叠放会合成。击退敌人可充能“爆发”。</p>
+      <p>点植物卡，再点草坪。把兼容植物放到已有植物上即可合成。</p>
+      <p class="recipes">二阶融合示例：火豆+双豆=五连火豆；冰炮+毒藤=毒冰炮；四连豆+光花=连锁光炮；治愈坚果+阳光花=永生坚果。</p>
+      <p class="muted">守住 5 条路线。后期会出现冲锋、盾牌、跳跃、吸能怪和 Boss。</p>
     </section>
   </main>
 <script>
@@ -164,9 +165,9 @@
 async function txt(p){const r=await fetch(p,{cache:'no-store'});if(!r.ok)throw new Error('加载失败 '+p);return r.text()}
 async function ungzip(b64){const bin=atob(b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);const ds=new DecompressionStream('gzip');return await new Response(new Blob([u]).stream().pipeThrough(ds)).text()}
 try{
- const style=document.createElement('style');style.textContent=await ungzip((await Promise.all(['s0.txt'].map(txt))).join(''));document.head.appendChild(style);
- (0,eval)(await ungzip((await Promise.all(['c0.txt'].map(txt))).join('')));
- (0,eval)(await ungzip((await Promise.all(['g0.txt', 'g1.txt', 'g2.txt', 'g3.txt', 'g4.txt', 'g5.txt'].map(txt))).join('')));
+ const style=document.createElement('style');style.textContent=await ungzip((await Promise.all(['s0.txt','s1.txt'].map(txt))).join(''));document.head.appendChild(style);
+ (0,eval)(await ungzip((await Promise.all(['c0.txt','c1.txt'].map(txt))).join('')));
+ (0,eval)(await ungzip((await Promise.all(['g0.txt','g1.txt','g2.txt','g3.txt','g4.txt','g5.txt'].map(txt))).join('')));
 }catch(e){document.body.innerHTML='<main style="padding:24px;font-family:sans-serif"><h1>花园守卫</h1><p>加载失败，请刷新或使用新版 Chrome/Edge/Firefox/Safari。</p><pre>'+String(e)+'</pre></main>';console.error(e)}
 })();
 </script>
