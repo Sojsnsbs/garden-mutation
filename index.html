@@ -2,174 +2,57 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>花园守卫 v0.9</title>
-  <meta name="theme-color" content="#101710" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="theme-color" content="#142218" />
+  <title>花园守卫 v1.0-alpha</title>
+  <link rel="stylesheet" href="v1.css?v=100a4" />
 </head>
 <body>
-  <div id="mainMenu" class="main-menu">
-    <div class="main-menu-panel">
-      <p class="eyebrow">GARDEN GUARD</p>
-      <h1>花园守卫 <span>v0.9</span></h1>
-      <p>种植物，挡怪物，合成更强植物</p>
-      <div id="menuProfile" class="menu-profile"></div>
-      <div class="menu-buttons">
-        <button id="continueBtn" class="primary big">开始游戏</button>
-        <button id="menuEndlessBtn" class="big">无尽模式</button>
-        <button id="menuTutorialBtn" class="big">新手教程</button>
-        <button id="menuPlanBtn" class="big">卡组与设置</button>
-        <button id="installBtn" class="big hidden">安装离线版</button>
-      </div>
-      <p class="muted">原创植物塔防试玩版。</p>
-    </div>
-  </div>
-
-  <main class="shell">
-    <section class="topbar">
-      <div>
-        <h1>花园守卫 <span>v0.9</span></h1>
-        <p>快节奏植物塔防</p>
-      </div>
-      <div class="actions">
-        <button id="returnMenuBtn">退出</button>
-        <button id="pauseBtn">暂停</button>
-        <button id="restartBtn">重开</button>
+  <main id="app">
+    <section id="menu" class="screen menu-screen">
+      <div class="menu-card">
+        <div class="eyebrow">GARDEN GUARD</div>
+        <h1>花园守卫</h1>
+        <p>守住 5 条草坪。产能、布防、处理突袭。</p>
+        <button id="startBtn" class="primary">开始防守</button>
+        <button id="howBtn" class="secondary">玩法说明</button>
+        <div id="howText" class="how hidden">点选植物卡，再点草坪种植。能量花持续产能；豆炮负责输出；冰豆减速；盾果挡路；双发豆压制高血量敌人；爆果用于救场。每 5 波进入旗帜波。</div>
       </div>
     </section>
 
-    <nav class="hub-tabs" aria-label="卡组与设置">
-      <button class="hub-tab active" data-tab="mapPanel">选关</button>
-      <button class="hub-tab" data-tab="deckPanelCard">卡组</button>
-      <button class="hub-tab" data-tab="collectionPanel">收集</button>
-      <button class="hub-tab" data-tab="savePanel">设置</button>
-    </nav>
-
-    <section class="hub-panel active" id="mapPanel">
-      <div class="meta-grid">
-        <div class="meta-card campaign-card">
-          <div class="meta-title-row"><h2>选择关卡</h2><span id="campaignProgress" class="muted"></span></div>
-          <div id="levelNodes" class="level-nodes"></div>
-          <label>区域
-            <select id="levelSelect"></select>
-          </label>
-          <label>模式
-            <select id="modeSelect">
-              <option value="campaign">战役</option>
-              <option value="endless">无尽</option>
-              <option value="tutorial">教程</option>
-            </select>
-          </label>
-          <label>难度
-            <select id="difficultySelect">
-              <option value="story">培育模式</option>
-              <option value="standard" selected>标准</option>
-              <option value="hard">高压</option>
-              <option value="nightmare">畸变</option>
-            </select>
-          </label>
-          <p id="levelDescription" class="muted"></p>
-          <p id="unlockText" class="progress-text"></p>
-          <button id="startBtn" class="primary">开始所选战场</button>
+    <section id="game" class="screen game-screen hidden">
+      <header class="hud">
+        <div class="hud-chip energy"><span class="hud-label">能量</span><strong id="energyText">150</strong></div>
+        <div class="wave-box">
+          <div class="wave-line"><span id="waveText">第 1 波</span><span id="dangerText">准备</span></div>
+          <div class="progress"><i id="waveProgress"></i></div>
         </div>
-        <div class="meta-card tech-card">
-          <div class="meta-title-row">
-            <h2>升级</h2>
-            <span id="profileText" class="muted"></span>
-          </div>
-          <div id="techPanel" class="tech-panel"></div>
-        </div>
-        <div class="meta-card relic-card">
-          <div class="meta-title-row"><h2>随身道具</h2><span id="relicCountText" class="muted"></span></div>
-          <p class="muted">最多带 2 件。</p>
-          <div id="relicPanel" class="relic-panel"></div>
-        </div>
+        <button id="pauseBtn" class="icon-btn">暂停</button>
+      </header>
+
+      <div id="stageWrap" class="stage-wrap">
+        <canvas id="gameCanvas" width="900" height="540"></canvas>
+        <div id="banner" class="banner hidden"></div>
+        <div id="tip" class="tip">先种一株能量花</div>
       </div>
+
+      <nav id="cardBar" class="card-bar" aria-label="植物卡牌"></nav>
     </section>
 
-    <section class="hub-panel" id="deckPanelCard">
-      <div class="meta-card wide-card">
-        <div class="meta-title-row"><h2>选择植物</h2><span id="deckCountText" class="muted"></span></div>
-        <p class="muted">从 8 张基础卡中选择 6 张。融合配方仍可使用当前卡组中的材料；卡组保存到长期设置。</p>
-        <div id="deckPanel" class="deck-panel"></div>
+    <section id="result" class="screen result-screen hidden">
+      <div class="result-card">
+        <div id="resultKicker" class="eyebrow">RESULT</div>
+        <h2 id="resultTitle">防守成功</h2>
+        <p id="resultText"></p>
+        <button id="againBtn" class="primary">再来一局</button>
+        <button id="menuBtn" class="secondary">返回标题</button>
       </div>
-    </section>
-
-    <section class="hub-panel" id="collectionPanel">
-      <div class="collection-grid">
-        <div class="meta-card"><div class="meta-title-row"><h2>植物</h2><span id="plantDexText" class="muted"></span></div><div id="plantDex" class="dex-list"></div></div>
-        <div class="meta-card"><div class="meta-title-row"><h2>怪物</h2><span id="enemyDexText" class="muted"></span></div><div id="enemyDex" class="dex-list"></div></div>
-        <div class="meta-card"><div class="meta-title-row"><h2>成就</h2><span id="achievementText" class="muted"></span></div><div id="achievementPanel" class="achievement-panel"></div></div>
-      </div>
-    </section>
-
-    <section class="hub-panel" id="savePanel">
-      <div class="meta-grid">
-        <div class="meta-card settings-card">
-          <h2>设置</h2>
-          <label class="toggle-row"><input id="sfxToggle" type="checkbox" /> 合成音效</label>
-          <label class="toggle-row"><input id="shakeToggle" type="checkbox" /> 屏幕震动</label>
-          <label class="toggle-row"><input id="damageToggle" type="checkbox" /> 伤害数字</label>
-          <label class="toggle-row"><input id="autoCollectToggle" type="checkbox" /> 自动收集能量</label>
-          <label class="toggle-row"><input id="ambientToggle" type="checkbox" /> 环境声</label>
-          <label class="toggle-row"><input id="reducedMotionToggle" type="checkbox" /> 低动态模式</label>
-          <label class="toggle-row"><input id="tutorialHintsToggle" type="checkbox" /> 教程提示</label>
-          <label class="range-row">主音量 <input id="volumeRange" type="range" min="0" max="1" step="0.05" value="0.7" /><span id="volumeValue">70%</span></label>
-          <p class="muted">音效和环境声由 Web Audio 实时合成，不包含外部音频素材。低动态模式会关闭摇摆、脉冲缩放和大部分粒子。</p>
-        </div>
-        <div class="meta-card save-card">
-          <div class="meta-title-row"><h2>设置槽</h2><span id="slotStatus" class="muted"></span></div>
-          <div class="slot-row"><select id="saveSlotSelect"><option value="1">槽位 1</option><option value="2">槽位 2</option><option value="3">槽位 3</option></select><button id="switchSlotBtn">切换槽位</button></div>
-          <h2>设置迁移</h2>
-          <p class="muted">可导出或导入进度码。</p>
-          <textarea id="saveText" rows="7" spellcheck="false" placeholder="点击导出生成设置码，或在这里粘贴设置码后导入。"></textarea>
-          <div class="actions"><button id="exportSaveBtn">导出设置</button><button id="importSaveBtn">导入设置</button><button id="copySaveBtn">复制</button></div>
-          <p id="saveStatus" class="progress-text"></p>
-        </div>
-      </div>
-    </section>
-
-    <section class="hud">
-      <div>能量 <strong id="energyValue">150</strong></div>
-      <div>波次 <strong id="waveValue">1</strong>/<span id="waveMax">12</span></div>
-      <div>击退 <strong id="killValue">0</strong></div>
-      <div>片段 <strong id="shardValue">0</strong></div>
-      <div>事件 <strong id="eventValue">无</strong></div>
-      <div>遗物 <strong id="runRelicValue">0</strong>/2</div>
-      <div id="tutorialHud" class="tutorial-hud hidden">指导 <strong id="tutorialValue">-</strong></div>
-      <div class="status" id="statusText">尚未开局</div>
-    </section>
-
-    <section class="game-wrap">
-      <canvas id="game" width="1080" height="720" aria-label="花园守卫游戏画布"></canvas>
-      <div id="tutorialCallout" class="tutorial-callout hidden"></div>
-      <div id="overlay" class="overlay hidden">
-        <div class="panel">
-          <h2 id="overlayTitle"></h2>
-          <p id="overlayText"></p>
-          <div id="upgradeChoices" class="upgrade-choices hidden"></div>
-          <button id="overlayRestartBtn">重新开始</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="mobileDeck" class="mobile-deck" aria-label="移动端卡组"></section>
-
-    <section class="help">
-      <p>点植物卡，再点草坪。把兼容植物放到已有植物上即可合成。</p>
-      <p class="recipes">二阶融合示例：火豆+双豆=五连火豆；冰炮+毒藤=毒冰炮；四连豆+光花=连锁光炮；治愈坚果+阳光花=永生坚果。</p>
-      <p class="muted">守住 5 条路线。后期会出现冲锋、盾牌、跳跃、吸能怪和 Boss。</p>
     </section>
   </main>
-<script>
-(async()=>{
-async function txt(p){const r=await fetch(p,{cache:'no-store'});if(!r.ok)throw new Error('加载失败 '+p);return r.text()}
-async function ungzip(b64){const bin=atob(b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);const ds=new DecompressionStream('gzip');return await new Response(new Blob([u]).stream().pipeThrough(ds)).text()}
-try{
- const style=document.createElement('style');style.textContent=await ungzip((await Promise.all(['s0.txt','s1.txt'].map(txt))).join(''));document.head.appendChild(style);
- (0,eval)(await ungzip((await Promise.all(['c0.txt','c1.txt'].map(txt))).join('')));
- (0,eval)(await ungzip((await Promise.all(['g0.txt','g1.txt','g2.txt','g3.txt','g4.txt','g5.txt'].map(txt))).join('')));
-}catch(e){document.body.innerHTML='<main style="padding:24px;font-family:sans-serif"><h1>花园守卫</h1><p>加载失败，请刷新或使用新版 Chrome/Edge/Firefox/Safari。</p><pre>'+String(e)+'</pre></main>';console.error(e)}
-})();
-</script>
+
+  <script src="data.js?v=100a4"></script>
+  <script src="engine.js?v=100a4"></script>
+  <script src="main.js?v=100a4"></script>
+  <script src="render.js?v=100a4"></script>
 </body>
 </html>
