@@ -23,14 +23,59 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Build normal static site
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf dist
+          mkdir -p dist
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip, re
+
+          root = Path('.')
+          dist = Path('dist')
+
+          def unpack(prefix, count, out_name):
+              encoded = ''.join((root / f'{prefix}{i}.txt').read_text(encoding='utf-8').strip() for i in range(count))
+              data = gzip.decompress(base64.b64decode(encoded))
+              (dist / out_name).write_bytes(data)
+              print(out_name, len(data))
+
+          unpack('s', 2, 'styles.css')
+          unpack('c', 2, 'config.js')
+          unpack('g', 6, 'game.js')
+
+          html = (root / 'index.html').read_text(encoding='utf-8')
+          loader = re.compile(r'<script>\s*\(async\(\)=>\{.*?</script>', re.S)
+          normal = '<link rel="stylesheet" href="styles.css?v=091">\n<script src="config.js?v=091"></script>\n<script src="game.js?v=091"></script>'
+          html, changed = loader.subn(normal, html, count=1)
+          if changed != 1:
+              raise SystemExit(f'expected one runtime loader, replaced {changed}')
+          html = html.replace('<meta charset="utf-8" />', '<meta charset="utf-8" />\n  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />')
+          (dist / 'index.html').write_text(html, encoding='utf-8')
+          (dist / 'VERSION').write_text('0.9.1\n', encoding='utf-8')
+
+          if 'fetch(' in html or 'DecompressionStream' in html or '(0,eval)' in html:
+              raise SystemExit('runtime chunk loader still present')
+          PY
+          node --check dist/config.js
+          node --check dist/game.js
+          grep -q 'styles.css?v=091' dist/index.html
+          grep -q 'game.js?v=091' dist/index.html
+          test ! -f dist/g0.txt
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
+
       - name: Upload static site
         uses: actions/upload-pages-artifact@v4
         with:
-          path: .
+          path: dist
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
