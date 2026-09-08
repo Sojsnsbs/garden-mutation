@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
   <meta name="theme-color" content="#142218" />
-  <title>花园守卫 v1.0-alpha</title>
-  <link rel="stylesheet" href="v1.css?v=100a4" />
+  <title>花园守卫 v1.1-alpha</title>
+  <link rel="stylesheet" href="v1.css?v=110a1" />
 </head>
 <body>
   <main id="app">
@@ -13,10 +13,10 @@
       <div class="menu-card">
         <div class="eyebrow">GARDEN GUARD</div>
         <h1>花园守卫</h1>
-        <p>守住 5 条草坪。产能、布防、处理突袭。</p>
+        <p>种植物，收能量，守住 5 条草坪。</p>
         <button id="startBtn" class="primary">开始防守</button>
         <button id="howBtn" class="secondary">玩法说明</button>
-        <div id="howText" class="how hidden">点选植物卡，再点草坪种植。能量花持续产能；豆炮负责输出；冰豆减速；盾果挡路；双发豆压制高血量敌人；爆果用于救场。每 5 波进入旗帜波。</div>
+        <div id="howText" class="how hidden">选植物卡后点草坪种植；点发光能量球收集。敌人突破时，每条路线都有一次应急推车救场。铲子可以移除错误布局。第 5、10、15 波是旗帜波。</div>
       </div>
     </section>
 
@@ -24,14 +24,20 @@
       <header class="hud">
         <div class="hud-chip energy"><span class="hud-label">能量</span><strong id="energyText">150</strong></div>
         <div class="wave-box">
-          <div class="wave-line"><span id="waveText">第 1 波</span><span id="dangerText">准备</span></div>
-          <div class="progress"><i id="waveProgress"></i></div>
+          <div class="wave-line"><span id="waveText">准备</span><span id="dangerText">准备</span></div>
+          <div class="progress-wrap">
+            <div class="progress"><i id="waveProgress"></i></div>
+            <span class="flag-mark f1"></span><span class="flag-mark f2"></span><span class="flag-mark f3"></span>
+          </div>
         </div>
-        <button id="pauseBtn" class="icon-btn">暂停</button>
+        <div class="hud-actions">
+          <button id="shovelBtn" class="icon-btn tool-btn">铲子</button>
+          <button id="pauseBtn" class="icon-btn">暂停</button>
+        </div>
       </header>
 
       <div id="stageWrap" class="stage-wrap">
-        <canvas id="gameCanvas" width="900" height="540"></canvas>
+        <canvas id="gameCanvas" width="900" height="720"></canvas>
         <div id="banner" class="banner hidden"></div>
         <div id="tip" class="tip">先种一株能量花</div>
       </div>
@@ -50,9 +56,9 @@
     </section>
   </main>
 
-  <script src="data.js?v=100a4"></script>
-  <script src="engine.js?v=100a4"></script>
-  <script src="main.js?v=100a4"></script>
-  <script src="render.js?v=100a4"></script>
+  <script src="data.js?v=110a1"></script>
+  <script src="engine.js?v=110a1"></script>
+  <script src="main.js?v=110a1"></script>
+  <script src="render.js?v=110a1"></script>
 </body>
 </html>
