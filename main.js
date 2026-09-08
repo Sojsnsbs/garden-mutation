@@ -1,0 +1,22 @@
+window.GG = window.GG || {};
+(()=>{
+const G=GG,$=s=>document.querySelector(s);
+G.canvas=$('#gameCanvas');G.ctx=G.canvas.getContext('2d');
+const menu=$('#menu'),game=$('#game'),result=$('#result'),startBtn=$('#startBtn'),howBtn=$('#howBtn'),howText=$('#howText'),againBtn=$('#againBtn'),menuBtn=$('#menuBtn'),pauseBtn=$('#pauseBtn'),energyText=$('#energyText'),waveText=$('#waveText'),dangerText=$('#dangerText'),waveProgress=$('#waveProgress'),banner=$('#banner'),tip=$('#tip'),cardBar=$('#cardBar');
+let raf=0,last=0,bannerTimer=0;
+G.showScreen=which=>{[menu,game,result].forEach(x=>x.classList.add('hidden'));which.classList.remove('hidden')};
+G.setTip=(text,sec=3)=>{tip.textContent=text;tip.style.opacity='1';clearTimeout(G.setTip.t);G.setTip.t=setTimeout(()=>tip.style.opacity='0',sec*1000)};
+G.showBanner=(text,sec=1.6)=>{banner.textContent=text;banner.classList.remove('hidden');clearTimeout(bannerTimer);bannerTimer=setTimeout(()=>banner.classList.add('hidden'),sec*1000)};
+G.renderCards=()=>{cardBar.innerHTML='';for(const key of G.CARD_ORDER){const p=G.PLANTS[key],b=document.createElement('button');b.className='plant-card';b.dataset.key=key;b.innerHTML=`<div class="card-name">${p.name}</div><div class="card-desc">${p.desc}</div><div class="card-cost">${p.cost}</div><div class="cooldown-mask"></div><div class="cooldown-text"></div>`;b.addEventListener('click',()=>{if(!G.state||G.state.paused)return;G.state.selected=key;G.tone(430,.035,.018);G.updateCards()});cardBar.appendChild(b)}G.updateCards()};
+G.updateCards=()=>{if(!G.state)return;cardBar.querySelectorAll('.plant-card').forEach(b=>{const k=b.dataset.key,p=G.PLANTS[k],cd=G.state.cooldowns[k];b.classList.toggle('selected',G.state.selected===k);b.classList.toggle('locked',G.state.energy<p.cost||cd>0);b.querySelector('.cooldown-mask').style.transform=`scaleY(${G.clamp(cd/p.cd,0,1)})`;b.querySelector('.cooldown-text').textContent=cd>0?cd.toFixed(1)+'s':''})};
+G.updateHUD=()=>{if(!G.state)return;energyText.textContent=Math.floor(G.state.energy);waveText.textContent=G.state.wave?`第 ${G.state.wave}/10 波`:'准备';const script=G.WAVE_SCRIPTS[Math.max(0,G.state.wave-1)]||[],maxT=script.length?script[script.length-1].at+2:1;waveProgress.style.width=`${G.clamp((G.state.waveTime/maxT)*100,0,100)}%`;dangerText.textContent=G.state.intermission>0?'下一波':(G.state.wave===5||G.state.wave===10?'旗帜波':'防守中')};
+G.showResult=win=>{if(!G.state)return;cancelAnimationFrame(raf);$('#resultTitle').textContent=win?'防守成功':'防线失守';$('#resultKicker').textContent=win?'CLEAR':'FAILED';$('#resultText').textContent=`击退 ${G.state.kills} 个敌人，造成 ${Math.floor(G.state.damage)} 点伤害，种植 ${G.state.planted} 株植物。`;setTimeout(()=>G.showScreen(result),350)};
+G.startGame=()=>{G.initAudio();if(G.audio?.state==='suspended')G.audio.resume();cancelAnimationFrame(raf);G.state=G.blankState();G.renderCards();G.showScreen(game);last=performance.now();G.updateHUD();G.setTip('先种一株能量花',5);raf=requestAnimationFrame(loop)};
+function loop(now){if(!G.state)return;const dt=Math.min(.035,(now-last)/1000||0);last=now;if(G.state.running){G.update(dt);G.render();raf=requestAnimationFrame(loop)}else G.render()}
+function canvasPoint(ev){const rect=G.canvas.getBoundingClientRect(),t=ev.touches?.[0]||ev;return{x:(t.clientX-rect.left)*G.W/rect.width,y:(t.clientY-rect.top)*G.H/rect.height}}
+function handleTap(ev){if(!G.state||G.state.paused)return;ev.preventDefault();const p=canvasPoint(ev),orb=G.state.orbs.find(o=>!o.dead&&Math.hypot(o.x-p.x,o.y-p.y)<34);if(orb){G.collectOrb(orb);return}const cell=G.gridCell(p.x,p.y);if(cell){if(!G.placePlant(cell.r,cell.c,G.state.selected)){const existing=G.plantAt(cell.r,cell.c);if(existing)G.setTip('这个格子已经有植物',1.5);else if(G.state.energy<G.PLANTS[G.state.selected].cost)G.setTip('能量不足',1.5);else if(G.state.cooldowns[G.state.selected]>0)G.setTip('卡牌还在冷却',1.5)}G.updateHUD();G.updateCards()}}
+G.canvas.addEventListener('pointerdown',handleTap,{passive:false});
+pauseBtn.addEventListener('click',()=>{if(!G.state)return;G.state.paused=!G.state.paused;pauseBtn.textContent=G.state.paused?'继续':'暂停';if(!G.state.paused){last=performance.now();raf=requestAnimationFrame(loop)}else cancelAnimationFrame(raf)});
+startBtn.addEventListener('click',G.startGame);againBtn.addEventListener('click',G.startGame);menuBtn.addEventListener('click',()=>{cancelAnimationFrame(raf);G.showScreen(menu)});howBtn.addEventListener('click',()=>howText.classList.toggle('hidden'));
+G.showScreen(menu);
+})();
