@@ -21,8 +21,10 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout full history
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Build normal static site
         shell: bash
@@ -32,38 +34,78 @@ jobs:
           mkdir -p dist
           python3 - <<'PY'
           from pathlib import Path
-          import base64, gzip, re
+          import base64, gzip, re, subprocess
 
           root = Path('.')
           dist = Path('dist')
+          stable = '15359646e3fa97707f730417b187266683b5ccb9'
 
-          def unpack(prefix, count, out_name):
+          def unpack_current(prefix, count):
               encoded = ''.join((root / f'{prefix}{i}.txt').read_text(encoding='utf-8').strip() for i in range(count))
-              data = gzip.decompress(base64.b64decode(encoded))
-              (dist / out_name).write_bytes(data)
-              print(out_name, len(data))
+              return gzip.decompress(base64.b64decode(encoded)).decode('utf-8')
 
-          unpack('s', 2, 'styles.css')
-          unpack('c', 2, 'config.js')
-          unpack('g', 6, 'game.js')
+          def unpack_stable(prefix, count):
+              pieces=[]
+              for i in range(count):
+                  pieces.append(subprocess.check_output(['git','show',f'{stable}:{prefix}{i}.txt'], text=True).strip())
+              return gzip.decompress(base64.b64decode(''.join(pieces))).decode('utf-8')
+
+          # v0.9 CSS/config blocks are intact. The v0.9 game chunks were corrupted during chunked upload,
+          # so restore the last known-good v0.8 game core from repository history and re-apply v0.9 runtime changes.
+          css = unpack_current('s', 2)
+          config = unpack_current('c', 2)
+          game = unpack_stable('g', 5)
+
+          # Persist v0.9 saves while accepting old v0.8/v0.7/v0.6 slots.
+          game = game.replace("const saveKey = (slot=activeSlot) => `gardenMutationV08_slot${slot}`;", "const saveKey = (slot=activeSlot) => `gardenMutationV09_slot${slot}`;")
+          game = game.replace("const legacySlotKeys = (slot=activeSlot) => [`gardenMutationV07_slot${slot}`,`gardenMutationV06_slot${slot}`];", "const legacySlotKeys = (slot=activeSlot) => [`gardenMutationV08_slot${slot}`,`gardenMutationV07_slot${slot}`,`gardenMutationV06_slot${slot}`];")
+          game = game.replace("gardenMutationV08_importBackup_slot", "gardenMutationV09_importBackup_slot")
+          game = game.replace("已生成 v0.8 槽位", "已生成 v0.9 槽位")
+
+          # Mobile-first battle mode: hide planning UI only after an actual run begins.
+          game = game.replace("mainMenu.classList.remove('hidden');\n  }", "mainMenu.classList.remove('hidden');\n    document.body.classList.remove('playing');\n  }", 1)
+          game = game.replace("hideMainMenu();\n    cancelAnimationFrame(rafId);stopAmbient();", "hideMainMenu();\n    document.body.classList.add('playing');\n    cancelAnimationFrame(rafId);stopAmbient();", 1)
+
+          # Faster, denser early game. More enemies, shorter dead time, slightly lighter individual bodies are in config.
+          game = game.replace("cooldowns, wave:1, nextSpawn:mode==='tutorial'?4:2, spawnedThisWave:0, waveTarget:mode==='tutorial'?4:6,", "cooldowns, wave:1, nextSpawn:mode==='tutorial'?3:.65, spawnedThisWave:0, waveTarget:mode==='tutorial'?4:9,")
+          game = game.replace("state.waveTarget=state.mode==='tutorial'?(3+state.wave):(5+state.wave*2+Math.floor(state.wave/3)+(state.mode==='endless'?Math.floor(state.wave/10)*2:0));", "state.waveTarget=state.mode==='tutorial'?(3+state.wave):(7+state.wave*3+Math.floor(state.wave/2)+(state.mode==='endless'?Math.floor(state.wave/10)*3:0));")
+          game = game.replace("state.intermission=(state.mode==='campaign'&&state.wave>=state.maxWaves)?.75:3.8;", "state.intermission=(state.mode==='campaign'&&state.wave>=state.maxWaves)?.65:2.15;")
+
+          # Small readability simplifications that do not touch IDs or save data.
+          game = game.replace('培育指导：', '提示：')
+          game = game.replace('波间整备', '下一波')
+
+          (dist / 'styles.css').write_text(css, encoding='utf-8')
+          (dist / 'config.js').write_text(config, encoding='utf-8')
+          (dist / 'game.js').write_text(game, encoding='utf-8')
 
           html = (root / 'index.html').read_text(encoding='utf-8')
           loader = re.compile(r'<script>\s*\(async\(\)=>\{.*?</script>', re.S)
-          normal = '<link rel="stylesheet" href="styles.css?v=091">\n<script src="config.js?v=091"></script>\n<script src="game.js?v=091"></script>'
+          normal = '<link rel="stylesheet" href="styles.css?v=0912">\n<script src="config.js?v=0912"></script>\n<script src="game.js?v=0912"></script>'
           html, changed = loader.subn(normal, html, count=1)
           if changed != 1:
               raise SystemExit(f'expected one runtime loader, replaced {changed}')
           html = html.replace('<meta charset="utf-8" />', '<meta charset="utf-8" />\n  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />')
+          html = html.replace('v0.9</span>', 'v0.9.1</span>')
+          html = html.replace('<title>花园守卫 v0.9</title>', '<title>花园守卫 v0.9.1</title>')
           (dist / 'index.html').write_text(html, encoding='utf-8')
           (dist / 'VERSION').write_text('0.9.1\n', encoding='utf-8')
 
-          if 'fetch(' in html or 'DecompressionStream' in html or '(0,eval)' in html:
+          # Refuse to publish the fragile loader again.
+          if any(x in html for x in ('fetch(', 'DecompressionStream', '(0,eval)')):
               raise SystemExit('runtime chunk loader still present')
+          if "gardenMutationV09_slot" not in game or "document.body.classList.add('playing')" not in game:
+              raise SystemExit('v0.9 runtime patch missing')
+          print('styles.css', len(css))
+          print('config.js', len(config))
+          print('game.js', len(game))
+          print('index.html', len(html))
           PY
           node --check dist/config.js
           node --check dist/game.js
-          grep -q 'styles.css?v=091' dist/index.html
-          grep -q 'game.js?v=091' dist/index.html
+          grep -q 'styles.css?v=0912' dist/index.html
+          grep -q 'game.js?v=0912' dist/index.html
+          grep -q 'gardenMutationV09_slot' dist/game.js
           test ! -f dist/g0.txt
 
       - name: Setup Pages
