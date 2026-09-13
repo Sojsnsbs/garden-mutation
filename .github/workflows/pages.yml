@@ -31,6 +31,7 @@ jobs:
           rm -rf dist
           mkdir -p dist
           cp index.html v1.css data.js engine.js main.js render.js dist/
+          cp -R pelican dist/pelican
           printf '1.0.0-alpha\n' > dist/VERSION
           node --check dist/data.js
           node --check dist/engine.js
